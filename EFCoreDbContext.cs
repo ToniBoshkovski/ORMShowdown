@@ -7,21 +7,30 @@ namespace ORMShowdown
         public EFCoreDbContext() : base()
         { }
 
-        public EFCoreDbContext(DbContextOptions options) : base(options)
+        public EFCoreDbContext(DbContextOptions<EFCoreDbContext> options) : base(options)
         {
         }
 
         public virtual DbSet<Product> Products { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Data Source=TONI-BOSHKOVSKI; Initial Catalog=ORMShowdown; MultipleActiveResultSets=true; Integrated Security=true; TrustServerCertificate=true;");
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, Name = "Product 1", Price = 10 },
-                new Product { Id = 2, Name = "Product 2", Price = 20 },
-                new Product { Id = 3, Name = "Product 3", Price = 30 },
-                new Product { Id = 4, Name = "Product 4", Price = 40 },
-                new Product { Id = 5, Name = "Product 5", Price = 50 }
-            );
+            for (int i = 1; i < 100; i++)
+            {
+                var product = new Product
+                {
+                    Id = i,
+                    Name = "Random Product",
+                    Price = new Random().Next(1000, 10000)
+                };
+
+                modelBuilder.Entity<Product>().HasData(product);
+            }
         }
     }
 }

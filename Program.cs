@@ -8,11 +8,6 @@ using ORMShowdown;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<EFCoreDbContext>(options =>
-{
-    options.UseSqlServer("Data Source=TONI-BOSHKOVSKI; Initial Catalog=ORMShowdown; MultipleActiveResultSets=true; Integrated Security=true; TrustServerCertificate=true;");
-    //o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
-});
 builder.Services.AddSingleton<DapperContext>();
 
 var config = new ManualConfig()

@@ -4,63 +4,85 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ORMShowdown
 {
-    [MemoryDiagnoser]
+    [MemoryDiagnoser(false)]
     public class Benchmark
     {
-        private readonly EFCoreDbContext _efContext;
-        private readonly DapperContext _dapperContext;
-        private const int Iterations = 1000;
+        private EFCoreDbContext _efContext = null!;
+        private DapperContext _dapperContext = null!;
 
-        public Benchmark(EFCoreDbContext efContext, DapperContext dapperContext)
+        private Product _product = null!;
+
+        [GlobalSetup]
+        public void Setup()
         {
-            _efContext = efContext;
-            _dapperContext = dapperContext;
+            _efContext = new();
+            _dapperContext = new();
+
+            var randomNum = new Random().Next(1, 99);
+            _product = _efContext.Products.First(x => x.Id == randomNum);
         }
 
         [Benchmark]
-        public void EFCoreQueryBenchmark()
+        public async Task<Product?> EF__Find()
         {
-            for (int i = 0; i < Iterations; i++)
-            {
-                var products = _efContext.Products.ToList();
-            }
+            var product = await _efContext.Products.FindAsync(_product.Id);
+            return product;
         }
 
         [Benchmark]
-        public void DapperQueryBenchmark()
+        public async Task<Product?> EF_FirstOrDefault()
         {
-            for (int i = 0; i < Iterations; i++)
-            {
-                var products = _dapperContext.CreateConnection().Query<Product>("SELECT * FROM Products").ToList();
-            }
+            var product = await _efContext.Products.FirstOrDefaultAsync(x => x.Id == _product.Id);
+            return product;
         }
 
         [Benchmark]
-        public void EFCoreUpdateBenchmark()
+        public async Task<Product?> EF_SingleOrDefault()
         {
-            for (int i = 0; i < Iterations; i++)
-            {
-                var product = _efContext.Products.FirstOrDefault();
-                if (product != null)
-                {
-                    product.Price = 10;
-                    _efContext.SaveChanges();
-                }
-            }
+            var product = await _efContext.Products.SingleOrDefaultAsync(x => x.Id == _product.Id);
+            return product;
         }
 
         [Benchmark]
-        public void DapperUpdateBenchmark()
+        public async Task<Product> Dapper_FirstOrDefault()
         {
-            for (int i = 0; i < Iterations; i++)
-            {
-                var product = _dapperContext.CreateConnection().QueryFirstOrDefault<Product>("SELECT TOP(1) * FROM Products");
-                if (product != null)
-                {
-                    product.Price = 10;
-                    _dapperContext.CreateConnection().Execute("UPDATE Products SET Price = @Price WHERE Id = @Id", product);
-                }
-            }
+            var product = await _dapperContext.CreateConnection().QueryFirstOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
+            return product;
         }
+
+        [Benchmark]
+        public async Task<Product> Dapper_SingleOrDefault()
+        {
+            var product = await _dapperContext.CreateConnection().QuerySingleOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
+            return product;
+        }
+
+        //[Benchmark]
+        //public void EFCoreUpdateBenchmark()
+        //{
+        //    for (int i = 0; i < Iterations; i++)
+        //    {
+        //        var product = _efContext.Products.FirstOrDefault();
+        //        if (product != null)
+        //        {
+        //            product.Price = 10;
+        //            _efContext.SaveChanges();
+        //        }
+        //    }
+        //}
+
+        //[Benchmark]
+        //public void DapperUpdateBenchmark()
+        //{
+        //    for (int i = 0; i < Iterations; i++)
+        //    {
+        //        var product = _dapperContext.CreateConnection().QueryFirstOrDefault<Product>("SELECT TOP(1) * FROM Products");
+        //        if (product != null)
+        //        {
+        //            product.Price = 10;
+        //            _dapperContext.CreateConnection().Execute("UPDATE Products SET Price = @Price WHERE Id = @Id", product);
+        //        }
+        //    }
+        //}
     }
 }
