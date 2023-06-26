@@ -2,7 +2,7 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-namespace ORMShowdown
+namespace ORMShowdown.Benchmarks
 {
     [MemoryDiagnoser(false)]
     public class QueryBenchmarks

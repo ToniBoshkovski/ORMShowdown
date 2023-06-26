@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Dapper;
 
-namespace ORMShowdown
+namespace ORMShowdown.Benchmarks
 {
     [MemoryDiagnoser(false)]
     public class AddDeleteBenchmarks
