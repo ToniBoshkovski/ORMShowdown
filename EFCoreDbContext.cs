@@ -20,7 +20,7 @@ namespace ORMShowdown
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            for (int i = 1; i < 100; i++)
+            for (int i = 1; i <= 100; i++)
             {
                 var product = new Product
                 {

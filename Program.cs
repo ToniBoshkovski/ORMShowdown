@@ -15,7 +15,10 @@ var config = new ManualConfig()
         .AddValidator(JitOptimizationsValidator.DontFailOnError)
         .AddLogger(ConsoleLogger.Default)
         .AddColumnProvider(DefaultColumnProviders.Instance);
-BenchmarkRunner.Run<Benchmark>(config);
+
+BenchmarkRunner.Run<QueryBenchmarks>(config);
+//BenchmarkRunner.Run<UpdateBenchmarks>(config);
+//BenchmarkRunner.Run<AddDeleteBenchmarks>(config);
 
 var app = builder.Build();
 app.Run();

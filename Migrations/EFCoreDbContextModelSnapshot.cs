@@ -634,6 +634,12 @@ namespace ORMShowdown.Migrations
                             Id = 99,
                             Name = "Random Product",
                             Price = 1291
+                        },
+                        new
+                        { 
+                            Id = 100, 
+                            Name = "Random Product", 
+                            Price = 2532 
                         });
                 });
 #pragma warning restore 612, 618

@@ -115,7 +115,8 @@ namespace ORMShowdown.Migrations
                     { 96, "Random Product", 7021 },
                     { 97, "Random Product", 2149 },
                     { 98, "Random Product", 2184 },
-                    { 99, "Random Product", 1291 }
+                    { 99, "Random Product", 1291 },
+                    { 100, "Random Product", 2532 }
                 });
         }
 
