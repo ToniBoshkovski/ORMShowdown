@@ -7,16 +7,12 @@ namespace ORMShowdown.Benchmarks
     public class AddDeleteBenchmarks
     {
         private EFCoreDbContext _efContext = null!;
-        private DapperContext _dapperContext = null!;
-
         private int lastProductId;
 
         [GlobalSetup]
         public void Setup()
         {
             _efContext = new();
-            _dapperContext = new();
-
             lastProductId = _efContext.Products.OrderByDescending(x => x.Id).First().Id;
             Console.WriteLine($"PRODUCT WITH ID --- {lastProductId}");
         }
@@ -24,35 +20,37 @@ namespace ORMShowdown.Benchmarks
         [Benchmark]
         public async Task EF_Add_Delete()
         {
+            var context = new EFCoreDbContext();
             var newProduct = new Product
             {
-                Name = _efContext.CreateProductName(),
+                Name = Utils.CreateProductName(),
                 Price = new Random().Next(1000, 10000),
                 Code = Guid.NewGuid(),
                 Amount = new Random().Next(1, 1000),
             };
 
-            await _efContext.Products.AddAsync(newProduct);
-            await _efContext.SaveChangesAsync();
+            await context.Products.AddAsync(newProduct);
+            await context.SaveChangesAsync();
 
-            _efContext.Products.Remove(newProduct);
-            await _efContext.SaveChangesAsync();
+            context.Products.Remove(newProduct);
+            await context.SaveChangesAsync();
         }
 
         [Benchmark]
         public async Task Dapper_Add_Delete()
         {
+            var context = new DapperContext();
             var newProduct = new Product
             {
                 Id = lastProductId + 2,
-                Name = _efContext.CreateProductName(),
+                Name = Utils.CreateProductName(),
                 Price = new Random().Next(1000, 10000),
                 Code = Guid.NewGuid(),
                 Amount = new Random().Next(1, 1000),
             };
 
-            await _dapperContext.CreateConnection().ExecuteAsync("INSERT INTO Products (Name, Price) VALUES (@Name, @Price)", newProduct);
-            await _dapperContext.CreateConnection().ExecuteAsync("DELETE FROM Products WHERE Id = @Id", newProduct);
+            await context.CreateConnection().ExecuteAsync("INSERT INTO Products (Name, Price) VALUES (@Name, @Price)", newProduct);
+            await context.CreateConnection().ExecuteAsync("DELETE FROM Products WHERE Id = @Id", newProduct);
         }
     }
 }

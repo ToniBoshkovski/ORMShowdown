@@ -8,16 +8,12 @@ namespace ORMShowdown.Benchmarks
     public class UpdateBenchmarks
     {
         private EFCoreDbContext _efContext = null!;
-        private DapperContext _dapperContext = null!;
-
         private Product _product = null!;
 
         [GlobalSetup]
         public void Setup()
         {
             _efContext = new();
-            _dapperContext = new();
-
             var randomNum = new Random().Next(1, 99);
             _product = _efContext.Products.First(x => x.Id == randomNum);
             Console.WriteLine($"PRODUCT WITH ID --- {_product.Id}");
@@ -26,20 +22,22 @@ namespace ORMShowdown.Benchmarks
         [Benchmark]
         public async Task EF_Update()
         {
-            var product = await _efContext.Products.FirstOrDefaultAsync(x => x.Id == _product.Id);
-            _product.Price = new Random().Next(1000, 10000);
-            _efContext.Products.Update(_product);
+            var context = new EFCoreDbContext();
+            var product = await context.Products.FirstOrDefaultAsync(x => x.Id == _product.Id);
+            product.Price = new Random().Next(1000, 10000);
+            context.Products.Update(product);
 
-            await _efContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         [Benchmark]
         public async Task Dapper_Update()
         {
-            var product = await _dapperContext.CreateConnection().QueryFirstOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
-            _product.Price = new Random().Next(1000, 10000);
+            var context = new DapperContext();
+            var product = await context.CreateConnection().QueryFirstOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
+            product.Price = new Random().Next(1000, 10000);
 
-            await _dapperContext.CreateConnection().ExecuteAsync("UPDATE Products SET Price = @Price WHERE Id = @Id", _product);
+            await context.CreateConnection().ExecuteAsync("UPDATE Products SET Price = @Price WHERE Id = @Id", product);
         }
     }
 }

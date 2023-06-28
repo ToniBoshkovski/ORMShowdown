@@ -26,7 +26,7 @@ namespace ORMShowdown
                 var product = new Product
                 {
                     Id = i,
-                    Name = CreateProductName(),
+                    Name = Utils.CreateProductName(),
                     Price = new Random().Next(1000, 10000),
                     Code = Guid.NewGuid(),
                     Amount = new Random().Next(1, 10000)
@@ -34,21 +34,6 @@ namespace ORMShowdown
 
                 modelBuilder.Entity<Product>().HasData(product);
             }
-        }
-
-        public string CreateProductName()
-        {
-            Random rand = new Random();
-            var sb = new StringBuilder();
-            char letter;
-            for (int i = 0; i < 15; i++)
-            {
-                var randValue = rand.Next(0, 26);
-                letter = Convert.ToChar(randValue + 65);
-                sb.Append(letter);
-            }
-
-            return sb.ToString();
         }
     }
 }

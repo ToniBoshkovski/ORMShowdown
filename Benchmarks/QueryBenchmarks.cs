@@ -8,16 +8,12 @@ namespace ORMShowdown.Benchmarks
     public class QueryBenchmarks
     {
         private EFCoreDbContext _efContext = null!;
-        private DapperContext _dapperContext = null!;
-
         private Product _product = null!;
 
         [GlobalSetup]
         public void Setup()
         {
             _efContext = new();
-            _dapperContext = new();
-
             var randomNum = new Random().Next(1, 99);
             _product = _efContext.Products.First(x => x.Id == randomNum);
             Console.WriteLine($"PRODUCT WITH ID --- {_product.Id}");
@@ -33,14 +29,24 @@ namespace ORMShowdown.Benchmarks
         [Benchmark]
         public async Task<Product?> EF_FirstOrDefault()
         {
-            var product = await _efContext.Products.FirstOrDefaultAsync(x => x.Id == _product.Id);
+            var context = new EFCoreDbContext();
+            var product = await context.Products.FirstOrDefaultAsync(x => x.Id == _product.Id);
+            return product;
+        }
+
+        [Benchmark]
+        public async Task<Product?> EF_FirstOrDefault_AsNoTracking()
+        {
+            var context = new EFCoreDbContext();
+            var product = await context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _product.Id);
             return product;
         }
 
         [Benchmark]
         public async Task<Product?> EF_FirstOrDefault_Select()
         {
-            var product = await _efContext.Products.Select(b => new Product
+            var context = new EFCoreDbContext();
+            var product = await context.Products.Select(b => new Product
             {
                 Id = b.Id,
                 Name = b.Name,
@@ -55,21 +61,24 @@ namespace ORMShowdown.Benchmarks
         [Benchmark]
         public async Task<Product?> EF_SingleOrDefault()
         {
-            var product = await _efContext.Products.SingleOrDefaultAsync(x => x.Id == _product.Id);
+            var context = new EFCoreDbContext();
+            var product = await context.Products.SingleOrDefaultAsync(x => x.Id == _product.Id);
             return product;
         }
 
         [Benchmark]
         public async Task<Product> Dapper_FirstOrDefault()
         {
-            var product = await _dapperContext.CreateConnection().QueryFirstOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
+            var context = new DapperContext();
+            var product = await context.CreateConnection().QueryFirstOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
             return product;
         }
 
         [Benchmark]
         public async Task<Product> Dapper_SingleOrDefault()
         {
-            var product = await _dapperContext.CreateConnection().QuerySingleOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
+            var context = new DapperContext();
+            var product = await context.CreateConnection().QuerySingleOrDefaultAsync<Product>($"SELECT * FROM Products WHERE Id = {_product.Id}");
             return product;
         }
     }
