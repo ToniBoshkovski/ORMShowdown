@@ -7,7 +7,6 @@ namespace ORMShowdown.Benchmarks
     public class AddDeleteBenchmarks
     {
         private EFCoreDbContext _efContext = null!;
-
         private DapperContext _dapperContext = null!;
 
         private int lastProductId;
@@ -19,6 +18,7 @@ namespace ORMShowdown.Benchmarks
             _dapperContext = new();
 
             lastProductId = _efContext.Products.OrderByDescending(x => x.Id).First().Id;
+            Console.WriteLine($"PRODUCT WITH ID --- {lastProductId}");
         }
 
         [Benchmark]
@@ -26,8 +26,10 @@ namespace ORMShowdown.Benchmarks
         {
             var newProduct = new Product
             {
-                Name = "Random Product",
-                Price = new Random().Next(1000, 10000)
+                Name = _efContext.CreateProductName(),
+                Price = new Random().Next(1000, 10000),
+                Code = Guid.NewGuid(),
+                Amount = new Random().Next(1, 1000),
             };
 
             await _efContext.Products.AddAsync(newProduct);
@@ -43,8 +45,10 @@ namespace ORMShowdown.Benchmarks
             var newProduct = new Product
             {
                 Id = lastProductId + 2,
-                Name = "Random Product",
-                Price = new Random().Next(1000, 10000)
+                Name = _efContext.CreateProductName(),
+                Price = new Random().Next(1000, 10000),
+                Code = Guid.NewGuid(),
+                Amount = new Random().Next(1, 1000),
             };
 
             await _dapperContext.CreateConnection().ExecuteAsync("INSERT INTO Products (Name, Price) VALUES (@Name, @Price)", newProduct);

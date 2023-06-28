@@ -17,6 +17,7 @@ var config = new ManualConfig()
         .AddColumnProvider(DefaultColumnProviders.Instance);
 
 BenchmarkRunner.Run<QueryBenchmarks>(config);
+//BenchmarkRunner.Run<QueryAllBenchmarks>(config);
 //BenchmarkRunner.Run<UpdateBenchmarks>(config);
 //BenchmarkRunner.Run<AddDeleteBenchmarks>(config);
 

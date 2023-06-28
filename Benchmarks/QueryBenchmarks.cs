@@ -20,6 +20,7 @@ namespace ORMShowdown.Benchmarks
 
             var randomNum = new Random().Next(1, 99);
             _product = _efContext.Products.First(x => x.Id == randomNum);
+            Console.WriteLine($"PRODUCT WITH ID --- {_product.Id}");
         }
 
         [Benchmark]
@@ -33,6 +34,21 @@ namespace ORMShowdown.Benchmarks
         public async Task<Product?> EF_FirstOrDefault()
         {
             var product = await _efContext.Products.FirstOrDefaultAsync(x => x.Id == _product.Id);
+            return product;
+        }
+
+        [Benchmark]
+        public async Task<Product?> EF_FirstOrDefault_Select()
+        {
+            var product = await _efContext.Products.Select(b => new Product
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Price = b.Price,
+                Code = b.Code,
+                Amount = b.Amount
+            }).FirstOrDefaultAsync();
+
             return product;
         }
 
