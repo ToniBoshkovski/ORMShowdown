@@ -34,6 +34,18 @@ namespace ORMShowdown.Benchmarks
             return product;
         }
 
+        private static Func<EFCoreDbContext, int, Task<Product?>> GetProduct =
+            EF.CompileAsyncQuery((EFCoreDbContext context, int id) => context.Products.FirstOrDefault(n => n.Id == id));
+
+        [Benchmark]
+        public async Task<Product?> EF_FirstOrDefault_Compiled()
+        {
+            var context = new EFCoreDbContext();
+
+            var product = await GetProduct(context, _product.Id);
+            return product;
+        }
+
         [Benchmark]
         public async Task<Product?> EF_FirstOrDefault_AsNoTracking()
         {
